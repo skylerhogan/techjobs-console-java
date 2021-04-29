@@ -7,9 +7,7 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by LaunchCode
@@ -20,6 +18,9 @@ public class JobData {
     private static Boolean isDataLoaded = false;
 
     private static ArrayList<HashMap<String, String>> allJobs;
+    
+
+//    private static ArrayList<HashMap<String, String>> cloneAllJobs = new ArrayList<HashMap<String, String>>();
 
     /**
      * Fetch list of all values from loaded data,
@@ -42,6 +43,8 @@ public class JobData {
                 values.add(aValue);
             }
         }
+        //bonus mission: sort values alphabetically
+        Collections.sort(values);
 
         return values;
     }
@@ -51,18 +54,21 @@ public class JobData {
         // load data, if not already loaded
         loadData();
 
-        return allJobs;
+        //bonus mission: return a copy of allJobs
+        ArrayList<HashMap<String, String>> clonedJobs = (ArrayList<HashMap<String, String>>) allJobs.clone();
+
+        return clonedJobs;
     }
 
     /**
      * Returns results of search the jobs data by key/value, using
      * inclusion of the search term.
-     *
+     * <p>
      * For example, searching for employer "Enterprise" will include results
      * with "Enterprise Holdings, Inc".
      *
-     * @param column   Column that should be searched.
-     * @param value Value of teh field to search for
+     * @param column Column that should be searched.
+     * @param value  Value of the field to search for
      * @return List of all jobs matching the criteria
      */
     public static ArrayList<HashMap<String, String>> findByColumnAndValue(String column, String value) {
@@ -76,13 +82,33 @@ public class JobData {
 
             String aValue = row.get(column);
 
-            if (aValue.contains(value)) {
+            if (aValue.toLowerCase(Locale.ROOT).contains(value.toLowerCase(Locale.ROOT))) {
                 jobs.add(row);
             }
         }
 
         return jobs;
     }
+
+    public static ArrayList<HashMap<String, String>> findByValue(String searchTerm) {
+
+        //load data
+        loadData();
+
+        // declare, instantiate, and initialize new ArrayList to store jobs
+        ArrayList<HashMap<String, String>> jobs = new ArrayList<>();
+
+        //iterates through allJobs and adds them to the jobs ArrayList if found
+        for (Map<String, String> entry : allJobs) {
+            //this if statement determines whether or not each job contains the given searchTerm by
+            //returning each entry as a lowercase string and then comparing said entry to the lowercase searchTerm
+            //and adds the entry to jobs ArrayList if present
+            if (entry.toString().toLowerCase(Locale.ROOT).contains(searchTerm.toLowerCase(Locale.ROOT))) {
+                jobs.add((HashMap<String, String>) entry);
+                }
+            }
+            return jobs;
+        }
 
     /**
      * Read in data from a CSV file and store it in a list
@@ -124,5 +150,4 @@ public class JobData {
             e.printStackTrace();
         }
     }
-
 }
